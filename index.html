@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Message For You</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0, #e1bee7, #bbdefb, #b2ebf2);
+      background-size: 400% 400%;
+      animation: gradientShift 8s ease infinite;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .hearts-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 1.5rem;
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) scale(0.5); opacity: 0.7; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      border-radius: 32px;
+      padding: 60px 50px;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(200, 100, 150, 0.2);
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      color: #c2185b;
+      margin-bottom: 32px;
+      letter-spacing: 0.05em;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #f48fb1, #ce93d8);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 18px 44px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(200, 100, 180, 0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.04em;
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 28px rgba(200, 100, 180, 0.55);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .message {
+      margin-top: 36px;
+      font-size: 1.6rem;
+      color: #ad1457;
+      font-weight: bold;
+      min-height: 2.5rem;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      line-height: 1.4;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .sparkles {
+      font-size: 1.6rem;
+      margin-top: 8px;
+      min-height: 2rem;
+      opacity: 0;
+      transition: opacity 0.5s ease 0.2s;
+    }
+
+    .sparkles.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hearts-bg" id="heartsBg"></div>
+
+  <div class="card">
+    <p class="title">Press the button for a special message 💌</p>
+    <button class="btn" onclick="showMessage()">Click Me!</button>
+    <div class="message" id="message">Dad loves you! ❤️</div>
+    <div class="sparkles" id="sparkles">✨ 🌸 💖 🌈 🌸 ✨</div>
+  </div>
+
+  <script>
+    // Float hearts in the background
+    const bg = document.getElementById('heartsBg');
+    const heartEmojis = ['❤️', '💕', '💗', '💖', '🌸', '⭐', '🦋', '🌟'];
+
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement('span');
+      el.classList.add('heart');
+      el.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.animationDuration = (5 + Math.random() * 8) + 's';
+      el.style.animationDelay = (Math.random() * 8) + 's';
+      el.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+      bg.appendChild(el);
+    }
+
+    const messages = [
+      "Dad loves you, Gwen! ❤️",
+      "You are the best thing that ever happened to me. 💖",
+      "Gwen, you make every day brighter just by being you. 🌟",
+      "I am so proud of you, sweetheart. 🌸",
+      "You are my greatest adventure, Gwen. 🦋",
+      "No matter where you go, Dad's love goes with you. 💕",
+      "You are smart, kind, and absolutely wonderful. ✨",
+      "Gwen, you light up my whole world. 🌈",
+      "Being your dad is the best job I've ever had. 💗",
+      "I love you more than all the stars in the sky. ⭐",
+      "You are my sunshine, Gwen — always and forever. ☀️",
+    ];
+
+    let lastIndex = -1;
+
+    function showMessage() {
+      const msg = document.getElementById('message');
+      const sparkles = document.getElementById('sparkles');
+
+      // Pick a random message, never repeating the last one
+      let index;
+      do { index = Math.floor(Math.random() * messages.length); } while (index === lastIndex);
+      lastIndex = index;
+
+      // Reset animation so it plays again on repeat clicks
+      msg.classList.remove('show');
+      sparkles.classList.remove('show');
+
+      void msg.offsetWidth; // force reflow
+
+      msg.textContent = messages[index];
+      msg.classList.add('show');
+      sparkles.classList.add('show');
+    }
+  </script>
+</body>
+</html>
