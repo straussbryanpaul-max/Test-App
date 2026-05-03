@@ -277,7 +277,31 @@
     // 'everyone' photos are shared across all people.
     const photos = {
       everyone: ['fatface.jpg'],
-      rachel:   [],
+      rachel:   [
+        '20160101_000040.jpg',
+        '260213_10150219390644708_7660752_n.jpg',
+        'IMG_0031.jpg',
+        'IMG_0670.jpg',
+        'IMG_0811.jpg',
+        'IMG_0892.jpg',
+        'IMG_0899.jpg',
+        'IMG_1255.JPG',
+        'IMG_1365.JPG',
+        'IMG_1612.jpg',
+        'IMG_1763.JPG',
+        'IMG_1806.PNG',
+        'IMG_2324.jpg',
+        'IMG_2423.jpeg',
+        'IMG_2718.JPG',
+        'IMG_2813.jpg',
+        'IMG_2928.JPG',
+        'IMG_3248.jpg',
+        'IMG_3827.jpg',
+        'IMG_4031.JPG',
+        'IMG_4121.JPG',
+        'IMG_4234.JPG',
+        'IMG_5329.jpg',
+      ],
       ethan:    [
         '20140719_174425.jpg',
         '20160529_203309.jpg',
@@ -426,7 +450,6 @@
       msg.classList.remove('show');
       sparkles.classList.remove('show');
       photo.classList.remove('show');
-      photo.style.display = 'none';
       msg.textContent = '';
       lastPhotoIndex = -1;
 
@@ -439,38 +462,32 @@
       const sparkles = document.getElementById('sparkles');
       const photoEl = document.getElementById('dadPhoto');
 
-      // Build a combined pool: each message is one entry, each photo is one entry
+      // Pick a random message
+      let mi;
+      do { mi = Math.floor(Math.random() * data.messages.length); } while (mi === lastIndex);
+      lastIndex = mi;
+
+      // Pick a random photo
       const pool = getPhotoPool(currentPerson);
-      const combined = [
-        ...data.messages.map(m => ({ type: 'message', value: m })),
-        ...pool.map(p => ({ type: 'photo', value: p })),
-      ];
+      let pi;
+      do { pi = Math.floor(Math.random() * pool.length); } while (pi === lastPhotoIndex && pool.length > 1);
+      lastPhotoIndex = pi;
 
-      let index;
-      do { index = Math.floor(Math.random() * combined.length); } while (index === lastIndex);
-      lastIndex = index;
-
-      const pick = combined[index];
-
-      // Reset both
+      // Reset
       msg.classList.remove('show');
       sparkles.classList.remove('show');
       photoEl.classList.remove('show');
       void msg.offsetWidth;
 
-      if (pick.type === 'message') {
-        photoEl.style.display = 'none';
-        msg.textContent = pick.value;
-        sparkles.textContent = data.sparkles;
-        msg.classList.add('show');
-        sparkles.classList.add('show');
-      } else {
-        msg.textContent = '';
-        photoEl.style.display = 'block';
-        photoEl.src = pick.value;
-        void photoEl.offsetWidth;
-        photoEl.classList.add('show');
-      }
+      msg.textContent = data.messages[mi];
+      sparkles.textContent = data.sparkles;
+      msg.classList.add('show');
+      sparkles.classList.add('show');
+
+      photoEl.style.display = 'block';
+      photoEl.src = pool[pi];
+      void photoEl.offsetWidth;
+      photoEl.classList.add('show');
     }
 
     // Initialize with default
