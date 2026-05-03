@@ -161,6 +161,24 @@
     }
 
     .sparkles.show { opacity: 1; }
+
+    .dad-photo {
+      margin-top: 24px;
+      width: 100%;
+      max-width: 280px;
+      border-radius: 20px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      opacity: 0;
+      transform: scale(0.8) rotate(-2deg);
+      transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
+      display: none;
+    }
+
+    .dad-photo.show {
+      opacity: 1;
+      transform: scale(1) rotate(-2deg);
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -179,6 +197,7 @@
     <button class="msg-btn gwen" id="msgBtn" onclick="showMessage()">Get your message!</button>
     <div class="message" id="message"></div>
     <div class="sparkles" id="sparkles"></div>
+    <img id="dadPhoto" class="dad-photo" src="" alt="Dad!" />
   </div>
 
   <script>
@@ -254,8 +273,25 @@
       },
     };
 
+    // Photos: add filenames as you drop them in each folder.
+    // 'everyone' photos are shared across all people.
+    const photos = {
+      everyone: ['fatface.jpg'],
+      rachel:   [],
+      ethan:    [],
+      brooklyn: [],
+      gwen:     [],
+    };
+
+    function getPhotoPool(person) {
+      const personal = (photos[person] || []).map(f => `images/${person}/${f}`);
+      const shared   = photos.everyone.map(f => `images/everyone/${f}`);
+      return [...personal, ...shared];
+    }
+
     let currentPerson = 'gwen';
     let lastIndex = -1;
+    let lastPhotoIndex = -1;
 
     function buildFloaters(person) {
       const container = document.getElementById('floaters');
@@ -289,13 +325,16 @@
       const btn = document.getElementById('msgBtn');
       btn.className = `msg-btn ${person}`;
 
-      // Reset message
+      // Reset message and photo
       const msg = document.getElementById('message');
       const sparkles = document.getElementById('sparkles');
+      const photo = document.getElementById('dadPhoto');
       msg.className = `message ${person}`;
       msg.classList.remove('show');
       sparkles.classList.remove('show');
+      photo.classList.remove('show');
       msg.textContent = '';
+      lastPhotoIndex = -1;
 
       buildFloaters(person);
     }
@@ -304,6 +343,7 @@
       const data = people[currentPerson];
       const msg = document.getElementById('message');
       const sparkles = document.getElementById('sparkles');
+      const photoEl = document.getElementById('dadPhoto');
 
       let index;
       do { index = Math.floor(Math.random() * data.messages.length); } while (index === lastIndex);
@@ -311,12 +351,25 @@
 
       msg.classList.remove('show');
       sparkles.classList.remove('show');
+      photoEl.classList.remove('show');
       void msg.offsetWidth;
 
       msg.textContent = data.messages[index];
       sparkles.textContent = data.sparkles;
       msg.classList.add('show');
       sparkles.classList.add('show');
+
+      // Pick a random photo from the pool
+      const pool = getPhotoPool(currentPerson);
+      if (pool.length > 0) {
+        let pi;
+        do { pi = Math.floor(Math.random() * pool.length); } while (pi === lastPhotoIndex && pool.length > 1);
+        lastPhotoIndex = pi;
+        photoEl.style.display = 'block';
+        photoEl.src = pool[pi];
+        void photoEl.offsetWidth;
+        photoEl.classList.add('show');
+      }
     }
 
     // Initialize with default
