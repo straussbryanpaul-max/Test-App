@@ -333,6 +333,7 @@
       msg.classList.remove('show');
       sparkles.classList.remove('show');
       photo.classList.remove('show');
+      photo.style.display = 'none';
       msg.textContent = '';
       lastPhotoIndex = -1;
 
@@ -345,28 +346,35 @@
       const sparkles = document.getElementById('sparkles');
       const photoEl = document.getElementById('dadPhoto');
 
+      // Build a combined pool: each message is one entry, each photo is one entry
+      const pool = getPhotoPool(currentPerson);
+      const combined = [
+        ...data.messages.map(m => ({ type: 'message', value: m })),
+        ...pool.map(p => ({ type: 'photo', value: p })),
+      ];
+
       let index;
-      do { index = Math.floor(Math.random() * data.messages.length); } while (index === lastIndex);
+      do { index = Math.floor(Math.random() * combined.length); } while (index === lastIndex);
       lastIndex = index;
 
+      const pick = combined[index];
+
+      // Reset both
       msg.classList.remove('show');
       sparkles.classList.remove('show');
       photoEl.classList.remove('show');
       void msg.offsetWidth;
 
-      msg.textContent = data.messages[index];
-      sparkles.textContent = data.sparkles;
-      msg.classList.add('show');
-      sparkles.classList.add('show');
-
-      // Pick a random photo from the pool
-      const pool = getPhotoPool(currentPerson);
-      if (pool.length > 0) {
-        let pi;
-        do { pi = Math.floor(Math.random() * pool.length); } while (pi === lastPhotoIndex && pool.length > 1);
-        lastPhotoIndex = pi;
+      if (pick.type === 'message') {
+        photoEl.style.display = 'none';
+        msg.textContent = pick.value;
+        sparkles.textContent = data.sparkles;
+        msg.classList.add('show');
+        sparkles.classList.add('show');
+      } else {
+        msg.textContent = '';
         photoEl.style.display = 'block';
-        photoEl.src = pool[pi];
+        photoEl.src = pick.value;
         void photoEl.offsetWidth;
         photoEl.classList.add('show');
       }
